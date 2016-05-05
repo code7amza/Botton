@@ -1,7 +1,6 @@
 package com.hamzalive.botton;
 
 import android.net.Uri;
-import android.text.format.Time;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -28,6 +27,11 @@ import org.json.JSONObject;
 
 
 public class WeatherModel {
+    public static String sJsonExample = "{\"city\":{\"id\":2988507,\"name\":\"Paris\",\"coord\":{\"lon\":2.3488,\"lat\":48.853409},\"country\":\"FR\",\"population\":0},\"cod\":\"200\",\"message\":0.0088,\"cnt\":7,\"list\":[{\"dt\":1462014000,\"temp\":{\"day\":8.1,\"min\":3.14,\"max\":8.24,\"night\":3.14,\"eve\":8.24,\"morn\":8.1},\"pressure\":1022.65,\"humidity\":93,\"weather\":[{\"id\":500,\"main\":\"Rain\",\"description\":\"light rain\",\"icon\":\"10d\"}],\"speed\":5.11,\"deg\":357,\"clouds\":88,\"rain\":0.46},{\"dt\":1462100400,\"temp\":{\"day\":12.38,\"min\":2.61,\"max\":13.4,\"night\":3.99,\"eve\":11.99,\"morn\":2.61},\"pressure\":1030.61,\"humidity\":75,\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"speed\":5.21,\"deg\":3,\"clouds\":0},{\"dt\":1462186800,\"temp\":{\"day\":14.63,\"min\":3.32,\"max\":15.71,\"night\":8.56,\"eve\":14.54,\"morn\":3.32},\"pressure\":1027.77,\"humidity\":79,\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"02d\"}],\"speed\":2.31,\"deg\":265,\"clouds\":8},{\"dt\":1462273200,\"temp\":{\"day\":13.53,\"min\":5.07,\"max\":13.53,\"night\":5.07,\"eve\":12.37,\"morn\":9.71},\"pressure\":1027.54,\"humidity\":80,\"weather\":[{\"id\":500,\"main\":\"Rain\",\"description\":\"light rain\",\"icon\":\"10d\"}],\"speed\":4.9,\"deg\":338,\"clouds\":12,\"rain\":0.88},{\"dt\":1462359600,\"temp\":{\"day\":14.9,\"min\":4.86,\"max\":15.91,\"night\":7.67,\"eve\":14.69,\"morn\":4.86},\"pressure\":1030.01,\"humidity\":76,\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"speed\":3.81,\"deg\":104,\"clouds\":0},{\"dt\":1462446000,\"temp\":{\"day\":19.16,\"min\":8.24,\"max\":21.3,\"night\":17.23,\"eve\":21.3,\"morn\":8.24},\"pressure\":1019.83,\"humidity\":0,\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"speed\":4.27,\"deg\":154,\"clouds\":0},{\"dt\":1462532400,\"temp\":{\"day\":24.48,\"min\":17.15,\"max\":24.48,\"night\":20.41,\"eve\":23.88,\"morn\":17.15},\"pressure\":1012.22,\"humidity\":0,\"weather\":[{\"id\":500,\"main\":\"Rain\",\"description\":\"light rain\",\"icon\":\"10d\"}],\"speed\":6.36,\"deg\":192,\"clouds\":74,\"rain\":0.26}]}";
+    public static String sRequestURL = "http://api.openweathermap.org/data/2.5/forecast/daily?q=Paris,fr&mode=json&units=metric&cnt=7"; // needs APPID
+    public static ArrayList<String> sDefaultResponse = new ArrayList<String>(Arrays.asList(new String[] {"Could not forecast"}));
+    public static String sLogTag = "WeatherModel";
+
     public class FetchWeatherTask extends AsyncTask<URL, Void, ArrayList<String> >
     {
         private final String sLogTag = FetchWeatherTask.class.getSimpleName();
@@ -36,7 +40,6 @@ public class WeatherModel {
             String currentWeatherJson = null;
             HttpURLConnection connection = null;
             BufferedReader reader = null;
-            ArrayList<String> res = new ArrayList<>();
             try {
                 // connect
 
@@ -46,7 +49,7 @@ public class WeatherModel {
                 // read output
                 InputStream requestResponse = connection.getInputStream();
                 if (requestResponse == null)
-                    return res;
+                    return sDefaultResponse;
                 reader = new BufferedReader(new InputStreamReader(requestResponse));
 
                 String line;
@@ -55,7 +58,7 @@ public class WeatherModel {
                     buffer.append(line).append("\n");
                 }
                 if (0 == buffer.length())
-                    return res;
+                    return sDefaultResponse;
 
                 currentWeatherJson = buffer.toString();
             } catch (IOException e) {
@@ -101,12 +104,6 @@ public class WeatherModel {
 
     }
 
-
-    public static String sJsonExample = "{\"city\":{\"id\":2988507,\"name\":\"Paris\",\"coord\":{\"lon\":2.3488,\"lat\":48.853409},\"country\":\"FR\",\"population\":0},\"cod\":\"200\",\"message\":0.0088,\"cnt\":7,\"list\":[{\"dt\":1462014000,\"temp\":{\"day\":8.1,\"min\":3.14,\"max\":8.24,\"night\":3.14,\"eve\":8.24,\"morn\":8.1},\"pressure\":1022.65,\"humidity\":93,\"weather\":[{\"id\":500,\"main\":\"Rain\",\"description\":\"light rain\",\"icon\":\"10d\"}],\"speed\":5.11,\"deg\":357,\"clouds\":88,\"rain\":0.46},{\"dt\":1462100400,\"temp\":{\"day\":12.38,\"min\":2.61,\"max\":13.4,\"night\":3.99,\"eve\":11.99,\"morn\":2.61},\"pressure\":1030.61,\"humidity\":75,\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"speed\":5.21,\"deg\":3,\"clouds\":0},{\"dt\":1462186800,\"temp\":{\"day\":14.63,\"min\":3.32,\"max\":15.71,\"night\":8.56,\"eve\":14.54,\"morn\":3.32},\"pressure\":1027.77,\"humidity\":79,\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"02d\"}],\"speed\":2.31,\"deg\":265,\"clouds\":8},{\"dt\":1462273200,\"temp\":{\"day\":13.53,\"min\":5.07,\"max\":13.53,\"night\":5.07,\"eve\":12.37,\"morn\":9.71},\"pressure\":1027.54,\"humidity\":80,\"weather\":[{\"id\":500,\"main\":\"Rain\",\"description\":\"light rain\",\"icon\":\"10d\"}],\"speed\":4.9,\"deg\":338,\"clouds\":12,\"rain\":0.88},{\"dt\":1462359600,\"temp\":{\"day\":14.9,\"min\":4.86,\"max\":15.91,\"night\":7.67,\"eve\":14.69,\"morn\":4.86},\"pressure\":1030.01,\"humidity\":76,\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"speed\":3.81,\"deg\":104,\"clouds\":0},{\"dt\":1462446000,\"temp\":{\"day\":19.16,\"min\":8.24,\"max\":21.3,\"night\":17.23,\"eve\":21.3,\"morn\":8.24},\"pressure\":1019.83,\"humidity\":0,\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"speed\":4.27,\"deg\":154,\"clouds\":0},{\"dt\":1462532400,\"temp\":{\"day\":24.48,\"min\":17.15,\"max\":24.48,\"night\":20.41,\"eve\":23.88,\"morn\":17.15},\"pressure\":1012.22,\"humidity\":0,\"weather\":[{\"id\":500,\"main\":\"Rain\",\"description\":\"light rain\",\"icon\":\"10d\"}],\"speed\":6.36,\"deg\":192,\"clouds\":74,\"rain\":0.26}]}";
-    public static String sRequestURL = "http://api.openweathermap.org/data/2.5/forecast/daily?q=Paris,fr&mode=json&units=metric&cnt=7";
-    public static ArrayList<String> sDefaultResponse = new ArrayList<String>(Arrays.asList(new String[] {"Could not forecast"}));
-    public static String sLogTag = "WeatherModel";
-
     public static ArrayList<String> GetInfoFromJson(String json)
     {
         ArrayList<String> res = new ArrayList<>();
@@ -142,14 +139,15 @@ public class WeatherModel {
     public void GetWeatherFromCity(String city)
     {
         Uri.Builder builder = new Uri.Builder();
+
         builder.scheme("http").authority("api.openweathermap.org")
                 .appendPath("data").appendPath("2.5").appendPath("forecast").appendPath("daily")
-                .appendQueryParameter("q",city)
+                .appendQueryParameter("q",city).appendQueryParameter("APPID", BuildConfig.APPID)
                 .appendQueryParameter("units", "metrics").appendQueryParameter("mode", "json")
                 .appendQueryParameter("cnt", "7");
 
         String resUrl = builder.build().toString();
-        // Log.i(sLogTag, "Generated url : " + resUrl);
+        Log.i(sLogTag, "Generated url : " + resUrl);
         GetWeatherFromUrl(resUrl);
     }
 

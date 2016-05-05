@@ -34,20 +34,12 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
-        // Example of raw data
-        String[] fcstAr = {"Today - Sunny", "Tomorrow - Cold", "Monday - Sunny",
-                            "Tuesday - Rainy", "Wednesday - Storm", "Thursday - Calm"};
-        FORECAST = new ArrayList<String>(Arrays.asList(fcstAr));
+        FORECAST = new WeatherModel().GetWeatherSample();
 
         ADAPTER = new ArrayAdapter<String>( getActivity() // current context
                                         , R.layout.list_item_forecast  // layout of the list items
                                         , R.id.list_item_forecast_textview // id of the text view
-                                        //, new WeatherModel().GetWeatherCurrent()); // raw data
                                         , FORECAST); // raw data
-                                        //, new WeatherModel().GetWeatherFromCity("london,uk")); // raw data
-
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -71,7 +63,6 @@ public class ForecastFragment extends Fragment {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
             new WeatherModel().GetWeatherFromCity("London,uk");
-            //WeatherModel.getWeeklyForecastFromJson(WeatherModel.sJsonExample);
 
             return true;
         }
