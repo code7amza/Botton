@@ -1,5 +1,7 @@
 package com.hamzalive.botton;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,11 +11,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -46,6 +49,20 @@ public class ForecastFragment extends Fragment {
         ListView listView;
         listView = (ListView) rootView.findViewById(R.id.ListViewForecast);
         listView.setAdapter(ADAPTER);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+//                Toast.makeText(getActivity().getApplicationContext()
+//                        , "Clicked on Forecast :  " + ForecastFragment.FORECAST.get(position)
+//                        , Toast.LENGTH_SHORT).show();
+
+                Intent detail = new Intent(getActivity(), DetailedForecast.class);
+                detail.putExtra(Intent.EXTRA_TEXT, ForecastFragment.FORECAST.get(position));
+                startActivity(detail);
+                //getActivity().startService(detail);
+            }
+        });
 
         return rootView;
     }
