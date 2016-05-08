@@ -1,10 +1,10 @@
 package com.hamzalive.botton;
 
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,13 +14,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class ForecastFragment extends Fragment {
 
     public static ArrayAdapter<String> ADAPTER;
@@ -28,10 +24,27 @@ public class ForecastFragment extends Fragment {
     public ForecastFragment() {
     }
 
+    private void updateWeatherForecast()
+    {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String city = sp.getString(getString(R.string.preference_location_key)
+                , getString(R.string.preference_location_default));
+        String units = sp.getString(getString(R.string.preference_units_key)
+                , getString(R.string.preference_units_default));
+
+        new WeatherModel().GetWeatherFromCity(city, units);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onStart() {
+        updateWeatherForecast();
+        super.onStart();
     }
 
     @Override
@@ -60,7 +73,6 @@ public class ForecastFragment extends Fragment {
                 Intent detail = new Intent(getActivity(), DetailedForecast.class);
                 detail.putExtra(Intent.EXTRA_TEXT, ForecastFragment.FORECAST.get(position));
                 startActivity(detail);
-                //getActivity().startService(detail);
             }
         });
 
@@ -79,8 +91,11 @@ public class ForecastFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
-            new WeatherModel().GetWeatherFromCity("London,uk");
-
+            updateWeatherForecast();
+            return true;
+        } else if ( id == R.id.action_settings) {
+            Intent intent = new Intent(getActivity(), SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 

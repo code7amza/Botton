@@ -2,9 +2,26 @@
     <string name="app_name">Botton</string>
     <string name="action_settings">Settings</string>
     <string name="action_refresh" translatable="false">Refresh</string>
+    <string name="action_map">Open in Maps</string>
+    <string name="action_share">Share</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_detailed_forecast">DetailedForecast</string>
+    <string name="title_activity_detailed_forecast">Detailed Forecast</string>
+    <string name="title_settings_activity">Settings</string>
+    <string name="preference_location_label">Location</string>
+    <string name="preference_location_key" translatable="false">location</string>
+    <string name="preference_location_default" translatable="false">paris,fr</string>
+    <string name="preference_units_label">Temperature</string>
+    <string name="preference_units_key">temperature</string>
+    <string name="preference_units_default">metric</string>
+    <string-array name="preference_units_entries">
+        <item>metric (Celsius)</item>
+        <item>imperial (Fahrenheit)</item>
+    </string-array>
+    <string-array name="preference_units_entry_values">
+        <item>metric</item>
+        <item>imperial</item>
+    </string-array>
 </resources>
 

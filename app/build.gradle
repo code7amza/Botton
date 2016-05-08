@@ -10,7 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-        buildConfigField "String", "APPID", "\"111100000\""
+        buildConfigField "String", "APPID", "\"110ce73c897bc9b2cf831a6d1302f86a\""
     }
     buildTypes {
         release {

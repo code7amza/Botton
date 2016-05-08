@@ -2,7 +2,6 @@ package com.hamzalive.botton;
 
 import android.net.Uri;
 import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,18 +31,18 @@ public class WeatherModel {
     public static ArrayList<String> sDefaultResponse = new ArrayList<String>(Arrays.asList(new String[] {"Could not forecast"}));
     public static String sLogTag = "WeatherModel";
 
-    public class FetchWeatherTask extends AsyncTask<URL, Void, ArrayList<String> >
+    public class FetchWeatherTask extends AsyncTask<ArrayList<String>, Void, ArrayList<String> >
     {
         private final String sLogTag = FetchWeatherTask.class.getSimpleName();
         @Override
-        protected ArrayList<String> doInBackground(URL ... url) {
+        protected ArrayList<String> doInBackground(ArrayList<String> ... inputArgs ) {
             String currentWeatherJson = null;
             HttpURLConnection connection = null;
             BufferedReader reader = null;
             try {
                 // connect
-
-                connection = (HttpURLConnection) url[0].openConnection();
+                URL url = new URL(inputArgs[0].get(0));
+                connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.connect();
                 // read output
@@ -74,8 +73,8 @@ public class WeatherModel {
                     }
                 }
             }
-            //Log.i(sLogTag, "Got weather data : "+currentWeatherJson);
-            return getWeeklyForecastFromJson(currentWeatherJson);
+//            Log.i(sLogTag, "Got weather data : "+currentWeatherJson);
+            return getWeeklyForecastFromJson(currentWeatherJson, inputArgs[0].get(1));
         }
 
         @Override
@@ -104,54 +103,60 @@ public class WeatherModel {
 
     }
 
-    public static ArrayList<String> GetInfoFromJson(String json)
-    {
-        ArrayList<String> res = new ArrayList<>();
-        res.add("Today - Sunny");
-        res.add("Tomorrow - Cold");
-        res.add("Monday - Sunny");
-        res.add("Tuesday - Rainy");
-        res.add("Thursday - Windy");
-        res.add("Friday - Sunny");
-        return res;
-    }
-
     public ArrayList<String> GetWeatherSample()
     {
-        return getWeeklyForecastFromJson(sJsonExample);
+        return getWeeklyForecastFromJson(sJsonExample, "metric");
     }
 
-    private void GetWeatherFromUrl(String url)
+    private void GetWeatherFromUrl(String url, String units)
     {
         try{
-            new FetchWeatherTask().execute(new URL(url));
+
+            new FetchWeatherTask().execute(new ArrayList<String>(Arrays.asList(url, units)));
 
         }catch(Exception e) {
             Log.e(sLogTag, "Connection issue");
         }
     }
 
-    public void GetWeatherCurrent()
-    {
-        GetWeatherFromUrl(WeatherModel.sRequestURL);
-    }
+//    public void GetWeatherCurrent()
+//    {
+//        GetWeatherFromUrl(WeatherModel.sRequestURL, "metric");
+//    }
 
-    public void GetWeatherFromCity(String city)
+    public void GetWeatherFromCity(String city, String units)
     {
         Uri.Builder builder = new Uri.Builder();
 
         builder.scheme("http").authority("api.openweathermap.org")
                 .appendPath("data").appendPath("2.5").appendPath("forecast").appendPath("daily")
                 .appendQueryParameter("q",city).appendQueryParameter("APPID", BuildConfig.APPID)
-                .appendQueryParameter("units", "metrics").appendQueryParameter("mode", "json")
+                .appendQueryParameter("units", "metric").appendQueryParameter("mode", "json")
                 .appendQueryParameter("cnt", "7");
 
         String resUrl = builder.build().toString();
-        Log.i(sLogTag, "Generated url : " + resUrl);
-        GetWeatherFromUrl(resUrl);
+        // Log.i(sLogTag, "Generated url : " + resUrl);
+        GetWeatherFromUrl(resUrl, units);
     }
 
-    public static ArrayList<String> getWeeklyForecastFromJson(String jsonStr)
+    public static String formatTemperature(double high, double low, String units)
+    {
+        long h, l;
+        if(units.equals("metric")){
+            h = Math.round(high);
+            l = Math.round(low);
+        }else{
+            h = Math.round(high * 1.8 + 32);
+            l = Math.round(low * 1.8 + 32);
+        }
+
+
+        return String.format("%d/%d", h, l);
+
+
+    }
+
+    public static ArrayList<String> getWeeklyForecastFromJson(String jsonStr, String units)
     {
         ArrayList<String> res = new ArrayList<>();
         try
@@ -160,7 +165,6 @@ public class WeatherModel {
                 Log.w(sLogTag, "Invoked with empty");
                 return res;
             }
-            //Log.i(sLogTag, "in the beginning there was light with " + jsonStr);
             JSONObject json = new JSONObject(jsonStr);
             JSONArray the_list = json.getJSONArray("list");
 
@@ -169,8 +173,8 @@ public class WeatherModel {
             for(int idx = 0; idx < 7; ++idx){
                 JSONObject element = the_list.getJSONObject(idx);
                 JSONObject temp = element.getJSONObject("temp");
-                long the_max = Math.round(temp.getDouble("max"));
-                long the_min = Math.round(temp.getDouble("min"));
+                double the_max = temp.getDouble("max");
+                double the_min = temp.getDouble("min");
                 JSONObject weather = element.getJSONArray("weather").getJSONObject(0);
                 String the_main = weather.getString("main");
 
@@ -182,11 +186,10 @@ public class WeatherModel {
                 String month = cal.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.FRANCE);
                 month = month.substring(0, 1).toUpperCase() + month.substring(1, 3);
 
-                String the_day = String.format("%s, %s %s"  , day_of_week
-                                                            , month
-                                                            , cal.get(Calendar.DAY_OF_MONTH));
-
-                res.add(String.format("%s - %s - %d/%d", the_day, the_main, the_max, the_min));
+                res.add(String.format("%s, %s %s - %s - %s", day_of_week, month
+                        , cal.get(Calendar.DAY_OF_MONTH)
+                        , the_main
+                        , formatTemperature(the_max, the_min, units)));
             }
         } catch(final JSONException e){
             Log.e(sLogTag, "Error parsing JSON" + e);
